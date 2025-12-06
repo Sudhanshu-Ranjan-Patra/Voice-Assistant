@@ -48,7 +48,6 @@ function App() {
       if (!data.reply) return;
       setReply(data.reply);
 
-      // Instead of fetch -> call streaming TTS
       startStreamingTTS(data.reply);
 
     } catch (error) {
@@ -58,7 +57,7 @@ function App() {
     }
   };
 
-  // REAL-TIME STREAMING TTS BELOW
+  
   const startStreamingTTS = (text) => {
     if (!text.trim()) return;
 
@@ -71,7 +70,7 @@ function App() {
     const mediaSource = new MediaSource();
     
     mediaSource.addEventListener("sourceopen", () => {
-      // Use webm/opus or mp3 codec - both are widely supported
+
       let sourceBuffer;
       try {
         if (MediaSource.isTypeSupported("audio/mpeg")) {
