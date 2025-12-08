@@ -49,7 +49,6 @@ function App() {
       setReply(data.reply);
 
       startStreamingTTS(data.reply);
-
     } catch (error) {
       console.error("❌ Chat API Error:", error);
     } finally {
@@ -57,7 +56,6 @@ function App() {
     }
   };
 
-  
   const startStreamingTTS = (text) => {
     if (!text.trim()) return;
 
@@ -66,78 +64,90 @@ function App() {
     ws = new WebSocket("ws://localhost:4000/api/tts-stream");
 
     audioElement = new Audio();
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const audioContext = new (window.AudioContext ||
+      window.webkitAudioContext)();
     const mediaSource = new MediaSource();
-    
-    mediaSource.addEventListener("sourceopen", () => {
 
-      let sourceBuffer;
-      try {
-        if (MediaSource.isTypeSupported("audio/mpeg")) {
-          sourceBuffer = mediaSource.addSourceBuffer("audio/mpeg");
-        } else if (MediaSource.isTypeSupported("audio/webm; codecs=\"opus\"")) {
-          sourceBuffer = mediaSource.addSourceBuffer("audio/webm; codecs=\"opus\"");
-        } else {
-          console.warn("No supported audio codec found, attempting audio/mpeg");
-          sourceBuffer = mediaSource.addSourceBuffer("audio/mpeg");
-        }
-      } catch (e) {
-        console.error("Error creating source buffer:", e);
-        mediaSource.endOfStream("decode");
-        return;
-      }
-
-      ws.onopen = () => {
-        ws.send(JSON.stringify({ text }));
-      };
-
-      ws.onmessage = async (event) => {
+    mediaSource.addEventListener(
+      "sourceopen",
+      () => {
+        let sourceBuffer;
         try {
-          if (event.data instanceof Blob || event.data instanceof ArrayBuffer) {
-            const arrayBuffer = event.data instanceof Blob 
-              ? await event.data.arrayBuffer()
-              : event.data;
+          if (MediaSource.isTypeSupported("audio/mpeg")) {
+            sourceBuffer = mediaSource.addSourceBuffer("audio/mpeg");
+          } else if (MediaSource.isTypeSupported('audio/webm; codecs="opus"')) {
+            sourceBuffer = mediaSource.addSourceBuffer(
+              'audio/webm; codecs="opus"'
+            );
+          } else {
+            console.warn(
+              "No supported audio codec found, attempting audio/mpeg"
+            );
+            sourceBuffer = mediaSource.addSourceBuffer("audio/mpeg");
+          }
+        } catch (e) {
+          console.error("Error creating source buffer:", e);
+          mediaSource.endOfStream("decode");
+          return;
+        }
 
-            if (!sourceBuffer.updating) {
-              sourceBuffer.appendBuffer(new Uint8Array(arrayBuffer));
-            } else {
-              sourceBuffer.addEventListener(
-                "updateend",
-                () => {
-                  if (!sourceBuffer.updating) {
-                    sourceBuffer.appendBuffer(new Uint8Array(arrayBuffer));
-                  }
-                },
-                { once: true }
-              );
+        ws.onopen = () => {
+          ws.send(JSON.stringify({ text }));
+        };
+
+        ws.onmessage = async (event) => {
+          try {
+            if (
+              event.data instanceof Blob ||
+              event.data instanceof ArrayBuffer
+            ) {
+              const arrayBuffer =
+                event.data instanceof Blob
+                  ? await event.data.arrayBuffer()
+                  : event.data;
+
+              if (!sourceBuffer.updating) {
+                sourceBuffer.appendBuffer(new Uint8Array(arrayBuffer));
+              } else {
+                sourceBuffer.addEventListener(
+                  "updateend",
+                  () => {
+                    if (!sourceBuffer.updating) {
+                      sourceBuffer.appendBuffer(new Uint8Array(arrayBuffer));
+                    }
+                  },
+                  { once: true }
+                );
+              }
             }
+          } catch (err) {
+            console.error("Error processing audio chunk:", err);
           }
-        } catch (err) {
-          console.error("Error processing audio chunk:", err);
-        }
-      };
+        };
 
-      ws.onclose = () => {
-        console.log("🔊 Streaming ended.");
-        try {
+        ws.onclose = () => {
+          console.log("🔊 Streaming ended.");
+          try {
+            if (mediaSource.readyState === "open") {
+              mediaSource.endOfStream();
+            }
+          } catch (err) {
+            console.warn("Error ending stream:", err);
+          }
+        };
+
+        ws.onerror = (err) => {
+          console.error("WS STREAM ERROR:", err);
           if (mediaSource.readyState === "open") {
-            mediaSource.endOfStream();
+            mediaSource.endOfStream("network");
           }
-        } catch (err) {
-          console.warn("Error ending stream:", err);
-        }
-      };
-
-      ws.onerror = (err) => {
-        console.error("WS STREAM ERROR:", err);
-        if (mediaSource.readyState === "open") {
-          mediaSource.endOfStream("network");
-        }
-      };
-    }, { once: true });
+        };
+      },
+      { once: true }
+    );
 
     audioElement.src = URL.createObjectURL(mediaSource);
-    audioElement.play().catch(err => console.error("Audio play error:", err));
+    audioElement.play().catch((err) => console.error("Audio play error:", err));
   };
 
   return (
