@@ -16,10 +16,8 @@ app.use(cors({
   methods: ["POST", "GET"]
 }));
 
-// Initialize Google Gemini client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// AI Chat Route
 app.post("/api/chat", async (req, res) => {
   try {
     const { text } = req.body;
@@ -54,8 +52,7 @@ app.post("/api/chat", async (req, res) => {
 });
 
 
-// ---------------- TTS Route (ElevenLabs) ------------------
-
+// TTS Route (ElevenLabs) 
 app.post("/api/tts", async (req, res) => {
   try {
     const { text } = req.body;
@@ -89,7 +86,7 @@ app.post("/api/tts", async (req, res) => {
     });
 
     elevenWS.on("message", (chunk) => {
-      res.write(chunk); // send audio chunks as they arrive
+      res.write(chunk); 
     });
 
     elevenWS.on("close", () => res.end());
@@ -105,7 +102,7 @@ app.post("/api/tts", async (req, res) => {
 });
 
 
-// -------- WebSocket TTS Streaming Endpoint --------
+//WebSocket TTS Streaming Endpoint
 const wss = new WebSocketServer({ noServer: true });
 
 app.get("/api/tts-stream", (req, res) => {
