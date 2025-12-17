@@ -56,6 +56,7 @@ function App() {
     }
   };
 
+
   const startStreamingTTS = (text) => {
     if (!text.trim()) return;
 
@@ -125,8 +126,9 @@ function App() {
           }
         };
 
+
         ws.onclose = () => {
-          console.log("🔊 Streaming ended.");
+          console.log("🔊  Streaming ended.");
           try {
             if (mediaSource.readyState === "open") {
               mediaSource.endOfStream();
