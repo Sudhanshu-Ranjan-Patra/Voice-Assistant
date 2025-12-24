@@ -126,7 +126,6 @@ function App() {
           }
         };
 
-
         ws.onclose = () => {
           console.log("🔊  Streaming ended.");
           try {
