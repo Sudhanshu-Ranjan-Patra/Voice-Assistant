@@ -125,7 +125,6 @@ function App() {
             console.error("Error processing audio chunk:", err);
           }
         };
-
         ws.onclose = () => {
           console.log("🔊  Streaming ended.");
           try {
