@@ -146,7 +146,6 @@ function App() {
       },
       { once: true }
     );
-
     audioElement.src = URL.createObjectURL(mediaSource);
     audioElement.play().catch((err) => console.error("Audio play error:", err));
   };
@@ -154,15 +153,12 @@ function App() {
   return (
     <div style={{ padding: 30, fontFamily: "Arial" }}>
       <h2>🤖 Voice AI Assistant (Streaming Mode)</h2>
-
       <div style={{ marginBottom: 10 }}>
         <strong>You said:</strong> {message || "🎤 Waiting..."}
       </div>
-
       <button onClick={startListening} style={{ padding: 10 }}>
         🎙 Start Speaking
       </button>
-
       <div style={{ marginTop: 20 }}>
         <strong>AI:</strong> {loading ? "⏳ Thinking..." : reply}
       </div>
