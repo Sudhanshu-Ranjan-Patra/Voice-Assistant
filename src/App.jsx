@@ -56,7 +56,6 @@ function App() {
     }
   };
 
-
   const startStreamingTTS = (text) => {
     if (!text.trim()) return;
 
@@ -65,8 +64,9 @@ function App() {
     ws = new WebSocket("ws://localhost:4000/api/tts-stream");
 
     audioElement = new Audio();
-    const audioContext = new (window.AudioContext ||
-      window.webkitAudioContext)();
+    const audioContext = new (
+      window.AudioContext || window.webkitAudioContext
+    )();
     const mediaSource = new MediaSource();
 
     mediaSource.addEventListener(
@@ -78,11 +78,11 @@ function App() {
             sourceBuffer = mediaSource.addSourceBuffer("audio/mpeg");
           } else if (MediaSource.isTypeSupported('audio/webm; codecs="opus"')) {
             sourceBuffer = mediaSource.addSourceBuffer(
-              'audio/webm; codecs="opus"'
+              'audio/webm; codecs="opus"',
             );
           } else {
             console.warn(
-              "No supported audio codec found, attempting audio/mpeg"
+              "No supported audio codec found, attempting audio/mpeg",
             );
             sourceBuffer = mediaSource.addSourceBuffer("audio/mpeg");
           }
@@ -117,7 +117,7 @@ function App() {
                       sourceBuffer.appendBuffer(new Uint8Array(arrayBuffer));
                     }
                   },
-                  { once: true }
+                  { once: true },
                 );
               }
             }
@@ -125,7 +125,7 @@ function App() {
             console.error("Error processing audio chunk:", err);
           }
         };
-        
+
         ws.onclose = () => {
           console.log("🔊  Streaming ended.");
           try {
@@ -144,7 +144,7 @@ function App() {
           }
         };
       },
-      { once: true }
+      { once: true },
     );
     audioElement.src = URL.createObjectURL(mediaSource);
     audioElement.play().catch((err) => console.error("Audio play error:", err));
