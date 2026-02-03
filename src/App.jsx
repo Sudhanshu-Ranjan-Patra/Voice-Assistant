@@ -62,7 +62,6 @@ function App() {
     if (ws) ws.close();
 
     ws = new WebSocket("ws://localhost:4000/api/tts-stream");
-
     audioElement = new Audio();
     const audioContext = new (
       window.AudioContext || window.webkitAudioContext
