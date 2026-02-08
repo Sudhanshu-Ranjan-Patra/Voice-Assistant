@@ -66,7 +66,6 @@ function App() {
     const audioContext = new (
       window.AudioContext || window.webkitAudioContext
     )();
-    
     const mediaSource = new MediaSource();
     mediaSource.addEventListener(
       "sourceopen",
